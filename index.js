@@ -139,7 +139,8 @@ function decodeTorrentFile (torrent) {
     info: torrent.info,
     infoBuffer: bencode.encode(torrent.info),
     name: (torrent.info['name.utf-8'] || torrent.info.name).toString(),
-    announce: []
+    announce: [],
+    license: {}
   }
 
   result.infoHash = sha1.sync(result.infoBuffer)
@@ -186,6 +187,13 @@ function decodeTorrentFile (torrent) {
       offset: files.slice(0, i).reduce(sumLength, 0)
     }
   })
+
+  // handle license
+  if (torrent.license !== undefined) {
+    Object.keys(torrent.license).forEach(key => {
+      result.license[key] = Buffer.isBuffer(torrent.license[key]) ? torrent.license[key].toString() : torrent.license[key]
+    })
+  }
 
   result.length = files.reduce(sumLength, 0)
 
